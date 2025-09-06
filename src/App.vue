@@ -1,8 +1,24 @@
 <template>
-  <a-layout style="min-height: 100vh; padding: 24px; background: #f0f2f5">
-    <a-row justify="center">
-      <a-col :xs="24" :sm="20" :md="14" :lg="10">
-        <a-card :title="title" bordered>
+  <a-layout
+    style="
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0f2f5 0%, #d9e6f2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    "
+  >
+    <a-row style="width: 100%" justify="center">
+      <a-col :xs="24" :sm="20" :md="16" :lg="12">
+        <a-card
+          :title="title"
+          bordered
+          style="
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+          "
+        >
           <BmiCalculator />
         </a-card>
       </a-col>
@@ -25,10 +41,11 @@ export default defineComponent({
 </script>
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap");
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: "Work Sans", sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>

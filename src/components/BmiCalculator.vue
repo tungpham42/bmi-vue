@@ -1,84 +1,134 @@
 <template>
-  <div>
+  <div style="padding: 24px">
     <a-form layout="vertical">
-      <a-form-item
-        label="Weight"
-        :help="weightHelp"
-        :validate-status="weightStatus"
-      >
-        <a-input-number
-          v-model:value="weight"
-          :min="0"
-          :step="0.1"
-          style="width: 100%"
-          placeholder="Enter weight"
-        />
-        <a-select
-          v-model:value="weightUnit"
-          style="width: 120px; margin-top: 8px"
-        >
-          <a-select-option value="kg">kg</a-select-option>
-          <a-select-option value="lb">lb</a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item
-        label="Height"
-        :help="heightHelp"
-        :validate-status="heightStatus"
-      >
-        <a-input-number
-          v-model:value="height"
-          :min="0"
-          :step="0.1"
-          style="width: 100%"
-          placeholder="Enter height"
-        />
-        <a-select
-          v-model:value="heightUnit"
-          style="width: 120px; margin-top: 8px"
-        >
-          <a-select-option value="cm">cm</a-select-option>
-          <a-select-option value="m">m</a-select-option>
-          <a-select-option value="in">in</a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-button type="primary" block @click="calculate"
-          >Calculate BMI</a-button
-        >
+      <a-row :gutter="16">
+        <a-col :xs="24" :sm="12">
+          <a-form-item
+            label="Weight"
+            :help="weightHelp"
+            :validate-status="weightStatus"
+          >
+            <a-input-number
+              v-model:value="weight"
+              :min="0"
+              :step="0.1"
+              style="width: 100%"
+              placeholder="Enter weight"
+            >
+              <template #addonAfter>
+                <a-select v-model:value="weightUnit" style="width: 80px">
+                  <a-select-option value="kg">kg</a-select-option>
+                  <a-select-option value="lb">lb</a-select-option>
+                </a-select>
+              </template>
+            </a-input-number>
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="12">
+          <a-form-item
+            label="Height"
+            :help="heightHelp"
+            :validate-status="heightStatus"
+          >
+            <a-input-number
+              v-model:value="height"
+              :min="0"
+              :step="0.1"
+              style="width: 100%"
+              placeholder="Enter height"
+            >
+              <template #addonAfter>
+                <a-select v-model:value="heightUnit" style="width: 80px">
+                  <a-select-option value="cm">cm</a-select-option>
+                  <a-select-option value="m">m</a-select-option>
+                  <a-select-option value="in">in</a-select-option>
+                </a-select>
+              </template>
+            </a-input-number>
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-form-item style="margin-top: 16px">
+        <a-button type="primary" size="large" block @click="calculate">
+          <template #icon>
+            <CalculatorOutlined />
+          </template>
+          Calculate BMI
+        </a-button>
       </a-form-item>
     </a-form>
-    <a-divider />
-    <div v-if="calculated" style="display: grid; gap: 12px">
-      <div style="font-size: 1.25rem; font-weight: 600">
-        Your BMI: {{ bmiValue.toFixed(2) }}
-      </div>
-      <a-tag :color="bmiColor">{{ bmiCategory }}</a-tag>
-      <div>
-        <div style="font-weight: 600; margin-bottom: 6px">Advice</div>
-        <div>{{ advisor }}</div>
-      </div>
-      <a-progress :percent="progressPercent" :status="progressStatus" />
-      <a-space>
-        <a-button @click="reset">Reset</a-button>
-        <a-button type="default" @click="fillSample"
-          >Sample (70kg, 175cm)</a-button
+    <a-divider style="margin: 24px 0" />
+    <a-alert
+      v-if="calculated"
+      type="info"
+      :show-icon="false"
+      style="border-radius: 8px"
+    >
+      <template #message>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          "
         >
-      </a-space>
-    </div>
-    <div v-else style="color: #666">
+          <div style="font-size: 1.5rem; font-weight: 700; color: #1890ff">
+            Your BMI: {{ bmiValue.toFixed(2) }}
+          </div>
+          <a-tag
+            :color="bmiColor"
+            style="
+              margin-top: 8px;
+              font-weight: 600;
+              font-size: 0.9rem;
+              padding: 4px 12px;
+              border-radius: 16px;
+            "
+          >
+            {{ bmiCategory }}
+          </a-tag>
+          <div style="margin-top: 16px; font-size: 1rem; color: #555">
+            {{ advisor }}
+          </div>
+          <a-progress
+            :percent="progressPercent"
+            :status="progressStatus"
+            :show-info="false"
+            :stroke-color="progressStrokeColor"
+            style="margin-top: 24px"
+          />
+        </div>
+      </template>
+    </a-alert>
+    <div v-else style="text-align: center; color: #999; padding: 20px">
       Enter your weight and height, then click Calculate.
     </div>
+    <a-space style="width: 100%; justify-content: center; margin-top: 24px">
+      <a-button @click="reset">Reset</a-button>
+      <a-button type="dashed" @click="fillSample"
+        >Sample (70kg, 175cm)</a-button
+      >
+    </a-space>
   </div>
 </template>
+
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
+import {
+  CalculatorOutlined,
+  ReloadOutlined,
+  UserOutlined,
+} from "@ant-design/icons-vue";
 
 type UnitWeight = "kg" | "lb";
 type UnitHeight = "cm" | "m" | "in";
 
 export default defineComponent({
   name: "BmiCalculator",
+  components: {
+    CalculatorOutlined,
+  },
   setup() {
     const weight = ref<number | null>(null);
     const weightUnit = ref<UnitWeight>("kg");
@@ -198,6 +248,14 @@ export default defineComponent({
       return "exception";
     });
 
+    const progressStrokeColor = computed(() => {
+      const c = bmiCategory.value;
+      if (c === "Normal weight") return "#52c41a";
+      if (c === "Underweight") return "#1890ff";
+      if (c === "Overweight") return "#faad14";
+      return "#f5222d";
+    });
+
     return {
       weight,
       weightUnit,
@@ -213,6 +271,7 @@ export default defineComponent({
       bmiColor,
       progressPercent,
       progressStatus,
+      progressStrokeColor,
       weightHelp,
       heightHelp,
       weightStatus,
@@ -222,7 +281,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style>
+* {
+  font-family: "Work Sans", sans-serif !important;
+}
 /* small responsive tweaks */
 @media (max-width: 576px) {
   .ant-input-number {
